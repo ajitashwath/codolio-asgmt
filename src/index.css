@@ -24,21 +24,32 @@ body {
   line-height: 1.4;
 }
 
-/* Brutalist Scrollbar */
+/* Enhanced Brutalist Scrollbar */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 10px;
   background: var(--color-bg);
-  border-left: 1px solid var(--color-border);
+  border-left: 1px solid #111;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: #222;
   border: 2px solid var(--color-bg);
-  /* Blocky look */
+  transition: background 150ms;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text);
+  background: #444;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+  border-left: 1px solid #111;
+}
+
+/* Custom scrollbar class for table */
+.scrollbar-brutal {
+  scrollbar-width: thin;
+  scrollbar-color: #222 #000;
 }
 
 /* Utilities */
@@ -65,8 +76,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   cursor: pointer;
-  transition: all 0s;
-  /* No smooth transition */
+  transition: all 150ms;
 }
 
 .btn-brutal:hover {
@@ -75,17 +85,28 @@ body {
   border-color: var(--color-text);
 }
 
+.btn-brutal:focus {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+
 .btn-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
   cursor: pointer;
+  transition: all 150ms;
 }
 
 .btn-icon:hover {
   background: #111;
   border: 1px solid var(--color-border);
+}
+
+.btn-icon:focus {
+  outline: 1px solid var(--color-border);
+  outline-offset: 1px;
 }
 
 /* Inputs */
@@ -97,6 +118,7 @@ body {
   padding: 16px;
   font-family: 'Courier New', Courier, monospace;
   outline: none;
+  transition: all 150ms;
 }
 
 .input-brutal:focus {
@@ -104,29 +126,66 @@ body {
   background: #050505;
 }
 
-/* Animations - minimal/jerky */
-@keyframes flicker {
-  0% {
+/* Focus states for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+}
+
+/* Animations - smooth but fast */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
     opacity: 1;
   }
 
   50% {
     opacity: 0.8;
   }
-
-  100% {
-    opacity: 1;
-  }
 }
 
 /* Modal Overrides */
 .modal-overlay {
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
-  border: 1px solid white;
-  box-shadow: 10px 10px 0px rgba(50, 50, 50, 0.5);
-  /* Hard shadow */
+  border: 2px solid white;
+  box-shadow: 8px 8px 0px rgba(255, 255, 255, 0.1);
+  animation: slideIn 200ms ease-out;
+}
+
+/* Selection */
+::selection {
+  background: white;
+  color: black;
 }

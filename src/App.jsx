@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import {
     DndContext,
     closestCenter,
@@ -44,7 +44,7 @@ function App() {
     } = useSheetStore();
 
     // Initialize active topic
-    useMemo(() => {
+    useEffect(() => {
         if (!activeTopicId && topicOrder.length > 0) {
             setActiveTopic(topicOrder[0]);
         }
