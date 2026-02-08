@@ -1,6 +1,5 @@
 # Codolio Question Sheet
-
-A high-performance, focused application for managing and tracking your Data Structures and Algorithms (DSA) preparation. It features a modern Master-Detail layout designed to maximize screen real estate and keep you focused.
+A focused application for managing and tracking your Data Structures and Algorithms (DSA) preparation. It features a modern Master-Detail layout designed to maximize screen real estate and keep you focused.
 
 ## Features
 
