@@ -34,16 +34,21 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' })
                 className={`modal-content ${sizeClasses[size]}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-semibold text-white">{title}</h2>
-                    <button onClick={onClose} className="btn-icon">
-                        <X size={20} />
+                {/* Header - Sharp and Dark */}
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#222]">
+                    <h2 className="text-lg font-mono font-bold uppercase tracking-widest text-white">{title}</h2>
+                    <button
+                        onClick={onClose}
+                        className="p-2 text-[#666] hover:text-white hover:bg-[#222] transition-colors border border-transparent hover:border-[#333]"
+                    >
+                        <X size={20} strokeWidth={2} />
                     </button>
                 </div>
 
                 {/* Content */}
-                {children}
+                <div className="text-[#CCC] font-sans">
+                    {children}
+                </div>
             </div>
         </div>
     );

@@ -6,18 +6,16 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
-    DragOverlay
 } from '@dnd-kit/core';
 import {
     SortableContext,
     sortableKeyboardCoordinates,
     verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { Menu } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import TopicCard from './components/TopicCard';
+import TopicNavigation from './components/TopicNavigation';
+import QuestionTable from './components/QuestionTable';
 import Modal from './components/Modal';
 import TopicForm from './components/TopicForm';
 import SubTopicForm from './components/SubTopicForm';
@@ -31,6 +29,8 @@ function App() {
         topicOrder,
         questions,
         filters,
+        activeTopicId,
+        setActiveTopic,
         addTopic,
         updateTopic,
         deleteTopic,
@@ -40,231 +40,143 @@ function App() {
         updateQuestion,
         deleteQuestion,
         reorderQuestions,
+        toggleSolved
     } = useSheetStore();
 
-    // UI State
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    // Initialize active topic
+    useMemo(() => {
+        if (!activeTopicId && topicOrder.length > 0) {
+            setActiveTopic(topicOrder[0]);
+        }
+    }, [topicOrder, activeTopicId, setActiveTopic]);
+
     const [modal, setModal] = useState({ type: null, data: null });
 
-    // DnD Sensors
     const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: { distance: 8 }
-        }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
-    // Filter questions
-    const filteredQuestions = useMemo(() =>
-        filterQuestions(questions, filters),
-        [questions, filters]
-    );
-
-    // Modal handlers
     const openModal = (type, data = null) => setModal({ type, data });
     const closeModal = () => setModal({ type: null, data: null });
 
-    // Topic handlers
-    const handleAddTopic = (data) => {
-        addTopic(data.name);
-        closeModal();
-    };
+    const handleAddTopic = (data) => { addTopic(data.name); closeModal(); };
+    const handleEditTopic = (data) => { updateTopic(modal.data, data.name); closeModal(); };
+    const handleDeleteTopic = () => { deleteTopic(modal.data); closeModal(); };
+    const handleAddSubTopic = (data) => { addSubTopic(modal.data.topic, data.name); closeModal(); };
+    const handleAddQuestion = (data) => { addQuestion(data); closeModal(); };
+    const handleEditQuestion = (data) => { updateQuestion(modal.data.id, data); closeModal(); };
+    const handleDeleteQuestion = () => { deleteQuestion(modal.data.id); closeModal(); };
 
-    const handleEditTopic = (data) => {
-        updateTopic(modal.data, data.name);
-        closeModal();
-    };
-
-    const handleDeleteTopic = () => {
-        deleteTopic(modal.data);
-        closeModal();
-    };
-
-    // SubTopic handlers
-    const handleAddSubTopic = (data) => {
-        addSubTopic(modal.data.topic, data.name);
-        closeModal();
-    };
-
-    // Question handlers
-    const handleAddQuestion = (data) => {
-        addQuestion(data);
-        closeModal();
-    };
-
-    const handleEditQuestion = (data) => {
-        updateQuestion(modal.data.id, data);
-        closeModal();
-    };
-
-    const handleDeleteQuestion = () => {
-        deleteQuestion(modal.data.id);
-        closeModal();
-    };
-
-    // Drag and Drop handler
     const handleDragEnd = (event) => {
         const { active, over } = event;
-
         if (!over || active.id === over.id) return;
-
-        const activeData = active.data.current;
-        const overData = over.data.current;
-
-        // Topic reordering
-        if (activeData?.type === 'topic' && overData?.type === 'topic') {
-            const oldIndex = topicOrder.indexOf(active.id);
-            const newIndex = topicOrder.indexOf(over.id);
-            if (oldIndex !== -1 && newIndex !== -1) {
-                reorderTopics(oldIndex, newIndex);
-            }
-            return;
-        }
-
-        // Question reordering within same topic
-        const activeQuestion = questions.find(q => q.id === active.id);
-        const overQuestion = questions.find(q => q.id === over.id);
-
-        if (activeQuestion && overQuestion && activeQuestion.topic === overQuestion.topic) {
-            const topicQuestions = questions.filter(q => q.topic === activeQuestion.topic);
-            const oldIndex = topicQuestions.findIndex(q => q.id === active.id);
-            const newIndex = topicQuestions.findIndex(q => q.id === over.id);
-            if (oldIndex !== -1 && newIndex !== -1) {
-                reorderQuestions(activeQuestion.topic, oldIndex, newIndex);
-            }
+        const oldIndex = topicOrder.indexOf(active.id);
+        const newIndex = topicOrder.indexOf(over.id);
+        if (oldIndex !== -1 && newIndex !== -1) {
+            reorderTopics(oldIndex, newIndex);
         }
     };
 
     return (
-        <div className="min-h-screen">
-            {/* Header */}
-            <Header />
+        <div className="flex h-screen bg-black text-[#E5E5E5] font-mono overflow-hidden">
+            {/* 
+                BRUTALIST SIDEBAR 
+                - Fixed minimal width primarily
+                - Expands sharply on hover
+                - Solid Border Right
+            */}
+            <aside className="group/sidebar relative z-50 flex flex-col border-r border-[#333] bg-black w-[60px] hover:w-[300px] transition-all duration-200 ease-out overflow-hidden">
 
-            <div className="flex">
-                {/* Sidebar */}
-                <Sidebar
-                    isOpen={sidebarOpen}
-                    onToggle={() => setSidebarOpen(!sidebarOpen)}
-                    onAddTopic={() => openModal('addTopic')}
-                />
+                {/* Brand / Logo Area */}
+                <div className="h-[60px] flex items-center border-b border-[#333] shrink-0">
+                    <div className="w-[60px] h-full flex items-center justify-center shrink-0">
+                        <div className="w-6 h-6 border-2 border-white bg-white rotate-45"></div>
+                    </div>
+                    <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-100 text-xl font-bold tracking-[0.2em] whitespace-nowrap pl-4">
+                        CODOLIO
+                    </span>
+                </div>
 
-                {/* Main Content */}
-                <main className={`flex-1 p-6 transition-all ${sidebarOpen ? 'lg:ml-0' : ''}`}>
-                    {/* Mobile Menu Button */}
-                    <button
-                        onClick={() => setSidebarOpen(true)}
-                        className="lg:hidden mb-4 btn-secondary"
-                    >
-                        <Menu size={18} />
-                        Topics
-                    </button>
+                {/* Navigation Items */}
+                <div className="flex-1 overflow-y-auto overflow-x-hidden py-4">
+                    <div className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-100 px-6 pb-2 text-[10px] uppercase text-[#666] tracking-widest font-bold border-b border-transparent group-hover/sidebar:border-[#222] mb-2 mx-4">
+                        / Domains
+                    </div>
 
-                    <div className="max-w-4xl mx-auto">
-                        {/* Topic Cards with DnD */}
-                        <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                        >
-                            <SortableContext
-                                items={topicOrder}
-                                strategy={verticalListSortingStrategy}
-                            >
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                        <SortableContext items={topicOrder} strategy={verticalListSortingStrategy}>
+                            <div className="flex flex-col gap-[1px]">
                                 {topicOrder.map((topic, index) => (
-                                    <TopicCard
+                                    <TopicNavigation
                                         key={topic}
                                         topic={topic}
                                         index={index}
-                                        questions={filteredQuestions}
-                                        onEditTopic={() => openModal('editTopic', topic)}
-                                        onDeleteTopic={() => openModal('deleteTopic', topic)}
-                                        onAddSubTopic={() => openModal('addSubTopic', { topic })}
-                                        onAddQuestion={() => openModal('addQuestion', { topic })}
-                                        onEditQuestion={(q) => openModal('editQuestion', q)}
-                                        onDeleteQuestion={(q) => openModal('deleteQuestion', q)}
+                                        onEdit={() => openModal('editTopic', topic)}
+                                        onDelete={() => openModal('deleteTopic', topic)}
                                     />
                                 ))}
-                            </SortableContext>
-                        </DndContext>
-
-                        {/* Empty State */}
-                        {topicOrder.length === 0 && (
-                            <div className="text-center py-20">
-                                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                                    <span className="text-4xl">📚</span>
-                                </div>
-                                <h2 className="text-2xl font-bold text-white mb-2">No Topics Yet</h2>
-                                <p className="text-slate-400 mb-6">Get started by adding your first topic</p>
-                                <button
-                                    onClick={() => openModal('addTopic')}
-                                    className="btn btn-primary"
-                                >
-                                    Add First Topic
-                                </button>
                             </div>
-                        )}
+                        </SortableContext>
+                    </DndContext>
+                </div>
+
+                {/* Bottom Action: Add Topic */}
+                <button
+                    onClick={() => openModal('addTopic')}
+                    className="h-[60px] flex items-center border-t border-[#333] hover:bg-white hover:text-black transition-colors shrink-0"
+                >
+                    <div className="w-[60px] h-full flex items-center justify-center shrink-0">
+                        <Plus size={20} strokeWidth={2} />
                     </div>
-                </main>
-            </div>
+                    <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-100 text-xs font-bold uppercase tracking-widest whitespace-nowrap pl-4">
+                        Initialize New Topic
+                    </span>
+                </button>
+            </aside>
+
+            {/* MAIN CONTENT */}
+            <main className="flex-1 flex flex-col relative w-full h-full bg-black">
+                {activeTopicId ? (
+                    <QuestionTable
+                        topic={activeTopicId}
+                        onAddQuestion={() => openModal('addQuestion', { topic: activeTopicId })}
+                        onEditQuestion={(q) => openModal('editQuestion', q)}
+                        onDeleteQuestion={(q) => openModal('deleteQuestion', q)}
+                    />
+                ) : (
+                    <div className="flex-1 flex items-center justify-center border-[20px] border-[#111] m-10">
+                        <div className="text-center">
+                            <h1 className="text-4xl font-bold uppercase tracking-tighter mb-4 text-[#333]">System Idle</h1>
+                            <p className="text-[#444] text-xs uppercase tracking-widest">Select a domain to engage</p>
+                        </div>
+                    </div>
+                )}
+            </main>
 
             {/* Modals */}
-            {/* Add Topic */}
-            <Modal isOpen={modal.type === 'addTopic'} onClose={closeModal} title="Add Topic">
+            <Modal isOpen={modal.type === 'addTopic'} onClose={closeModal} title="New Domain">
                 <TopicForm onSubmit={handleAddTopic} onCancel={closeModal} />
             </Modal>
 
-            {/* Edit Topic */}
-            <Modal isOpen={modal.type === 'editTopic'} onClose={closeModal} title="Edit Topic">
-                <TopicForm
-                    initialData={{ name: modal.data }}
-                    onSubmit={handleEditTopic}
-                    onCancel={closeModal}
-                />
+            <Modal isOpen={modal.type === 'editTopic'} onClose={closeModal} title="Edit Domain">
+                <TopicForm initialData={{ name: modal.data }} onSubmit={handleEditTopic} onCancel={closeModal} />
             </Modal>
 
-            {/* Delete Topic */}
-            <Modal isOpen={modal.type === 'deleteTopic'} onClose={closeModal} title="Delete Topic">
-                <DeleteConfirmDialog
-                    type="Topic"
-                    name={modal.data}
-                    onConfirm={handleDeleteTopic}
-                    onCancel={closeModal}
-                />
+            <Modal isOpen={modal.type === 'deleteTopic'} onClose={closeModal} title="Delete Domain">
+                <DeleteConfirmDialog type="Topic" name={modal.data} onConfirm={handleDeleteTopic} onCancel={closeModal} />
             </Modal>
 
-            {/* Add SubTopic */}
-            <Modal isOpen={modal.type === 'addSubTopic'} onClose={closeModal} title="Add Sub-topic">
-                <SubTopicForm onSubmit={handleAddSubTopic} onCancel={closeModal} />
+            <Modal isOpen={modal.type === 'addQuestion'} onClose={closeModal} title="Inject Problem" size="lg">
+                <QuestionForm defaultTopic={modal.data?.topic} onSubmit={handleAddQuestion} onCancel={closeModal} />
             </Modal>
 
-            {/* Add Question */}
-            <Modal isOpen={modal.type === 'addQuestion'} onClose={closeModal} title="Add Question" size="lg">
-                <QuestionForm
-                    defaultTopic={modal.data?.topic}
-                    onSubmit={handleAddQuestion}
-                    onCancel={closeModal}
-                />
+            <Modal isOpen={modal.type === 'editQuestion'} onClose={closeModal} title="Modify Problem" size="lg">
+                <QuestionForm initialData={modal.data} onSubmit={handleEditQuestion} onCancel={closeModal} />
             </Modal>
 
-            {/* Edit Question */}
-            <Modal isOpen={modal.type === 'editQuestion'} onClose={closeModal} title="Edit Question" size="lg">
-                <QuestionForm
-                    initialData={modal.data}
-                    onSubmit={handleEditQuestion}
-                    onCancel={closeModal}
-                />
-            </Modal>
-
-            {/* Delete Question */}
-            <Modal isOpen={modal.type === 'deleteQuestion'} onClose={closeModal} title="Delete Question">
-                <DeleteConfirmDialog
-                    type="Question"
-                    name={modal.data?.title}
-                    onConfirm={handleDeleteQuestion}
-                    onCancel={closeModal}
-                />
+            <Modal isOpen={modal.type === 'deleteQuestion'} onClose={closeModal} title="Purge Problem">
+                <DeleteConfirmDialog type="Question" name={modal.data?.title} onConfirm={handleDeleteQuestion} onCancel={closeModal} />
             </Modal>
         </div>
     );

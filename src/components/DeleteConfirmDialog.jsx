@@ -3,22 +3,22 @@ import { AlertTriangle } from 'lucide-react';
 export default function DeleteConfirmDialog({ type, name, onConfirm, onCancel }) {
     return (
         <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
-                <AlertTriangle className="text-red-400" size={32} />
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-50 flex items-center justify-center">
+                <AlertTriangle className="text-red-500" size={32} />
             </div>
 
-            <h3 className="text-lg font-semibold text-white mb-2">
+            <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">
                 Delete {type}?
             </h3>
 
-            <p className="text-slate-400 mb-6">
-                Are you sure you want to delete <span className="text-white font-medium">"{name}"</span>?
+            <p className="text-[var(--color-text-secondary)] mb-8">
+                Are you sure you want to delete <span className="font-semibold text-[var(--color-text-primary)]">"{name}"</span>?
                 {type === 'Topic' && (
-                    <span className="block mt-2 text-sm text-red-400">
+                    <span className="block mt-2 text-sm text-red-500 font-medium">
                         This will also delete all questions under this topic.
                     </span>
                 )}
-                <span className="block mt-2 text-sm">This action cannot be undone.</span>
+                <span className="block mt-1 text-sm">This action cannot be undone.</span>
             </p>
 
             <div className="flex justify-center gap-3">

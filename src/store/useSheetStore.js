@@ -27,6 +27,7 @@ const useSheetStore = create(
 
             // UI State
             expandedTopics: {},
+            activeTopicId: null, // New state for Master-Detail view
             filters: {
                 search: '',
                 difficulty: 'all',
@@ -35,6 +36,7 @@ const useSheetStore = create(
             },
 
             // ========== Sheet Actions ==========
+            setActiveTopic: (topic) => set(() => ({ activeTopicId: topic })),
             updateSheet: (updates) => set((state) => ({
                 sheet: { ...state.sheet, ...updates }
             })),

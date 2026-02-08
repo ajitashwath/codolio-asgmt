@@ -48,18 +48,20 @@ export default function QuestionForm({ initialData, defaultTopic, onSubmit, onCa
 
     const availableSubTopics = subTopics[formData.topic] || [];
 
+    const labelClass = "block text-sm font-semibold text-[var(--color-text-secondary)] mb-2 uppercase tracking-wide";
+
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
             {/* Title */}
             <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className={labelClass}>
                     Question Title *
                 </label>
                 <input
                     type="text"
                     value={formData.title}
                     onChange={(e) => handleChange('title', e.target.value)}
-                    placeholder="Enter question title"
+                    placeholder="Enter question title..."
                     className="input"
                     autoFocus
                 />
@@ -68,7 +70,7 @@ export default function QuestionForm({ initialData, defaultTopic, onSubmit, onCa
             {/* Topic & SubTopic */}
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <label className={labelClass}>
                         Topic *
                     </label>
                     <select
@@ -83,7 +85,7 @@ export default function QuestionForm({ initialData, defaultTopic, onSubmit, onCa
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <label className={labelClass}>
                         Sub-topic
                     </label>
                     <select
@@ -103,7 +105,7 @@ export default function QuestionForm({ initialData, defaultTopic, onSubmit, onCa
             {/* Difficulty & Platform */}
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <label className={labelClass}>
                         Difficulty
                     </label>
                     <select
@@ -118,7 +120,7 @@ export default function QuestionForm({ initialData, defaultTopic, onSubmit, onCa
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <label className={labelClass}>
                         Platform
                     </label>
                     <select
@@ -137,35 +139,35 @@ export default function QuestionForm({ initialData, defaultTopic, onSubmit, onCa
 
             {/* Problem URL */}
             <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className={labelClass}>
                     Problem URL
                 </label>
                 <input
                     type="url"
                     value={formData.problemUrl}
                     onChange={(e) => handleChange('problemUrl', e.target.value)}
-                    placeholder="https://leetcode.com/problems/..."
+                    placeholder="https://..."
                     className="input"
                 />
             </div>
 
             {/* Resource URL */}
             <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className={labelClass}>
                     Video/Resource URL
                 </label>
                 <input
                     type="url"
                     value={formData.resource}
                     onChange={(e) => handleChange('resource', e.target.value)}
-                    placeholder="https://youtube.com/..."
+                    placeholder="https://..."
                     className="input"
                 />
             </div>
 
             {/* Notes */}
             <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className={labelClass}>
                     Notes
                 </label>
                 <textarea
@@ -178,7 +180,7 @@ export default function QuestionForm({ initialData, defaultTopic, onSubmit, onCa
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-3 pt-6 border-t border-[var(--color-border)] mt-6">
                 <button type="button" onClick={onCancel} className="btn btn-secondary">
                     Cancel
                 </button>

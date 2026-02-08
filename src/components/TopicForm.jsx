@@ -17,20 +17,20 @@ export default function TopicForm({ initialData, onSubmit, onCancel }) {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-[var(--color-text-secondary)] mb-2 uppercase tracking-wide">
                     Topic Name
                 </label>
                 <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter topic name"
+                    placeholder="Enter topic name..."
                     className="input"
                     autoFocus
                 />
             </div>
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-3 pt-6 border-t border-[var(--color-border)] mt-6">
                 <button type="button" onClick={onCancel} className="btn btn-secondary">
                     Cancel
                 </button>
